@@ -842,7 +842,7 @@ namespace BizHawk.Client.EmuHawk
 				raMemHack?.Enter();
 
 				CheckMessages();
-
+				NetServerWinform.runLoop();
 				// RA == null possibly due MainForm Dispose disposing RA (which case Exit is not valid anymore)
 				// RA != null possibly due to RA object being created (which case raMemHack is null, as RA was null before)
 				if (RA is not null) raMemHack?.Exit();
@@ -4851,6 +4851,11 @@ namespace BizHawk.Client.EmuHawk
 		public IQuickBmpFile QuickBmpFile { get; } = EmuHawk.QuickBmpFile.INSTANCE;
 
 		private IRetroAchievements RA { get; set; }
+
+		private void serverToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			NetServerWinform.start(_currentSoundProvider, _currentVideoProvider);
+		}
 
 		private void OpenRetroAchievements()
 		{
