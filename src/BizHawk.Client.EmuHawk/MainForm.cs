@@ -1083,6 +1083,10 @@ namespace BizHawk.Client.EmuHawk
 			base.OnDeactivate(e);
 		}
 
+		public void SetCurrentVideoProvider(IVideoProvider videoProvider) {
+			_currentVideoProvider = videoProvider;
+		}
+
 		private void ProcessInput(
 			InputCoalescer hotkeyCoalescer,
 			ControllerInputCoalescer finalHostController,
@@ -4855,6 +4859,11 @@ namespace BizHawk.Client.EmuHawk
 		private void serverToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			NetServerWinform.start(_currentSoundProvider, _currentVideoProvider);
+		}
+
+		private void clientToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			NetClienWinform.start(this);
 		}
 
 		private void OpenRetroAchievements()

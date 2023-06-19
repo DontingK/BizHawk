@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
-using static BizHawk.Emulation.Cores.Waterbox.NymaCore.NymaSettingsInfo;
 
 namespace BizHawk.Client.EmuHawk.tools.Network
 {
@@ -15,11 +11,10 @@ namespace BizHawk.Client.EmuHawk.tools.Network
 		private UdpClient udpServer;
 		private Thread thread;
 		private bool isRun;
-		private ClintUser clintUser;
-		private byte userUid = 0;
-		public UdpServer()
+		private UdpHandel udpHandel;
+		public UdpServer(UdpHandel udpHandel)
 		{
-
+			this.udpHandel = udpHandel;
 		}
 
 		public void start(int port)
@@ -40,7 +35,6 @@ namespace BizHawk.Client.EmuHawk.tools.Network
 			{
 				Console.WriteLine("UDP关闭");
 				isRun = false;
-				clintUser = null;
 				udpServer.Close();
 				thread = null;
 				Console.WriteLine("UDP以关闭");
@@ -59,14 +53,7 @@ namespace BizHawk.Client.EmuHawk.tools.Network
 					IPEndPoint clientEP = new IPEndPoint(IPAddress.Any, 0);
 					byte[] receivedData = udpServer.Receive(ref clientEP);
 					byte cmd = receivedData[0];
-
-					switch (cmd)
-					{
-						case Cmd.c_login:
-							login(receivedData, clientEP);
-							break;
-
-					}
+					udpHandel.Handel(cmd, receivedData, clientEP);
 				}
 				catch (Exception e)
 				{
@@ -78,41 +65,25 @@ namespace BizHawk.Client.EmuHawk.tools.Network
 
 		}
 
-		private void login(byte[] receivedData, IPEndPoint clientEP)
-		{
-			string name = Encoding.UTF8.GetString(receivedData, 0, receivedData.Length - 1);
-			if (clintUser!=null)
-			{
-				string msg = "2p is linked";
-				byte[] data = Encoding.UTF8.GetBytes(msg);
-				sendData(Cmd.s_login_fail, data, clientEP);
-			}
-			else
-			{
-				byte userId = this.userUid++;
-				sendData(Cmd.s_login_ok, new byte[] { userId }, clientEP);
-			}
-		}
-
 
 		public void sendData(byte cmd, byte[] data, IPEndPoint clientEP)
 		{
-			byte[] cmds = new byte[1];
+			byte[] cmds = new byte[] { cmd};
 			byte[] rData = cmds.Concat(data).ToArray();
 			udpServer.Send(rData, rData.Length, clientEP);
 		}
-		public void sendData(byte cmd, byte[] data, ClintUser clintUser)
+		public void sendData(byte cmd, byte[] data, UdpUser udpUser)
 		{
-			byte[] cmds = new byte[1];
+			byte[] cmds = new byte[] { cmd};
 			byte[] rData = cmds.Concat(data).ToArray();
 			try
 			{
-				udpServer.Send(rData, rData.Length, clintUser.clientEP);
+				udpServer.Send(rData, rData.Length, udpUser.clientEP);
 			}
 			catch (Exception e)
 			{
 				//user 退出
-				clintUser = null;
+				udpHandel.SendError(e,udpUser.clientEP);
 			}
 		}
 
@@ -127,18 +98,21 @@ namespace BizHawk.Client.EmuHawk.tools.Network
 		}
 	}
 
-	internal class ClintUser
+
+	public interface UdpHandel {
+
+		void Handel(byte cmd, byte[] data, IPEndPoint clientEP);
+		void SendError(Exception e,IPEndPoint clientEP);
+	}
+
+	internal class UdpUser
 	{
 
-		private string name;
 		public IPEndPoint clientEP { get; }
-		private byte id;
 
-		public ClintUser(string name, IPEndPoint clientEP, byte id)
+		public UdpUser(IPEndPoint clientEP)
 		{
-			this.name = name;
 			this.clientEP = clientEP;
-			this.id = id;
 		}
 	}
 }

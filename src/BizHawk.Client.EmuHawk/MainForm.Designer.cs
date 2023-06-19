@@ -217,6 +217,8 @@ namespace BizHawk.Client.EmuHawk
             this.dummyExternalTool = new BizHawk.WinForms.Controls.ToolStripMenuItemEx();
             this.RetroAchievementsMenuItem = new BizHawk.WinForms.Controls.ToolStripMenuItemEx();
             this.StartRetroAchievementsMenuItem = new BizHawk.WinForms.Controls.ToolStripMenuItemEx();
+            this.networkToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.serverToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.NESSubMenu = new BizHawk.WinForms.Controls.ToolStripMenuItemEx();
             this.NESPPUViewerMenuItem = new BizHawk.WinForms.Controls.ToolStripMenuItemEx();
             this.NESNametableViewerMenuItem = new BizHawk.WinForms.Controls.ToolStripMenuItemEx();
@@ -379,8 +381,7 @@ namespace BizHawk.Client.EmuHawk
             this.ShowMenuContextMenuSeparator = new BizHawk.WinForms.Controls.ToolStripSeparatorEx();
             this.ShowMenuContextMenuItem = new BizHawk.WinForms.Controls.ToolStripMenuItemEx();
             this.timerMouseIdle = new System.Windows.Forms.Timer(this.components);
-            this.networkToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.serverToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.clientToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.MainformMenu.SuspendLayout();
             this.MainStatusBar.SuspendLayout();
             this.MainFormContextMenu.SuspendLayout();
@@ -1487,6 +1488,22 @@ namespace BizHawk.Client.EmuHawk
             this.StartRetroAchievementsMenuItem.Text = "&Start RetroAchievements";
             this.StartRetroAchievementsMenuItem.Click += new System.EventHandler(this.StartRetroAchievementsMenuItem_Click);
             // 
+            // networkToolStripMenuItem
+            // 
+            this.networkToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.serverToolStripMenuItem,
+            this.clientToolStripMenuItem});
+            this.networkToolStripMenuItem.Name = "networkToolStripMenuItem";
+            this.networkToolStripMenuItem.Size = new System.Drawing.Size(205, 22);
+            this.networkToolStripMenuItem.Text = "Network";
+            // 
+            // serverToolStripMenuItem
+            // 
+            this.serverToolStripMenuItem.Name = "serverToolStripMenuItem";
+            this.serverToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.serverToolStripMenuItem.Text = "Server";
+            this.serverToolStripMenuItem.Click += new System.EventHandler(this.serverToolStripMenuItem_Click);
+            // 
             // NESSubMenu
             // 
             this.NESSubMenu.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -2423,20 +2440,12 @@ namespace BizHawk.Client.EmuHawk
             this.timerMouseIdle.Interval = 2000;
             this.timerMouseIdle.Tick += new System.EventHandler(this.TimerMouseIdle_Tick);
             // 
-            // networkToolStripMenuItem
+            // clientToolStripMenuItem
             // 
-            this.networkToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.serverToolStripMenuItem});
-            this.networkToolStripMenuItem.Name = "networkToolStripMenuItem";
-            this.networkToolStripMenuItem.Size = new System.Drawing.Size(205, 22);
-            this.networkToolStripMenuItem.Text = "Network";
-            // 
-            // serverToolStripMenuItem
-            // 
-            this.serverToolStripMenuItem.Name = "serverToolStripMenuItem";
-            this.serverToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.serverToolStripMenuItem.Text = "Server";
-            this.serverToolStripMenuItem.Click += new System.EventHandler(this.serverToolStripMenuItem_Click);
+            this.clientToolStripMenuItem.Name = "clientToolStripMenuItem";
+            this.clientToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.clientToolStripMenuItem.Text = "Client";
+            this.clientToolStripMenuItem.Click += new System.EventHandler(this.clientToolStripMenuItem_Click);
             // 
             // MainForm
             // 
@@ -2828,5 +2837,6 @@ namespace BizHawk.Client.EmuHawk
 		private System.Windows.Forms.ToolStripMenuItem networkToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem serverToolStripMenuItem;
 		private ToolStripMenuItemEx AutosaveLastSlotMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem clientToolStripMenuItem;
 	}
 }

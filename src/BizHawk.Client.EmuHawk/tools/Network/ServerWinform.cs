@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Windows.Forms;
 using BizHawk.Bizware.BizwareGL;
 using BizHawk.Client.EmuHawk.tools.Network;
@@ -9,17 +11,21 @@ using BizHawk.Emulation.Common;
 
 namespace BizHawk.Client.EmuHawk
 {
-	public partial class NetServerWinform : Form
+	public partial class NetServerWinform : Form, UdpHandel
 	{
 
 		public static NetServerWinform netServerWinform = null;
 		private IVideoProvider _currentVideoProvider;
-		private UdpServer udpServer = new UdpServer();
+		private UdpServer udpServer ;
 		private ISoundProvider _currentSoundProvider;
 		private Func<byte[]> videoPngTask;
 
+
+		private UdpUser udpUser;
+
 		private NetServerWinform(IVideoProvider videoProvider, ISoundProvider soundProvider)
 		{
+			udpServer = new UdpServer(this);
 			InitializeComponent();
 			_currentVideoProvider = videoProvider;
 			_currentSoundProvider = soundProvider;
@@ -29,7 +35,7 @@ namespace BizHawk.Client.EmuHawk
 
 		public static void start(ISoundProvider soundProvider, IVideoProvider videoProvider)
 		{
-			if (NetCliendWinform.netCliendWinform != null)
+			if (NetClienWinform.netCliendWinform != null)
 			{
 
 				string message = "Net Server/Clinet  Cannot be opened at the same time";
@@ -55,48 +61,21 @@ namespace BizHawk.Client.EmuHawk
 		{
 			var ret = new BitmapBuffer(_currentVideoProvider.BufferWidth, _currentVideoProvider.BufferHeight, _currentVideoProvider.GetVideoBuffer().ToArray());
 			ret.DiscardAlpha();
-			ret.ToSysdrawingBitmap();
 			return ret;
 		}
 
 		public static void runLoop()
 		{
+		//	if (netServerWinform == null&& !netServerWinform.udpServer.isUserLink())
 			if (netServerWinform == null)
 			{
 				return;
 			}
 			byte[] video = netServerWinform.videoPngTask();
-/*			using (MemoryStream memoryStream = new MemoryStream(video))
-			{
-				Bitmap bitmap = new Bitmap(memoryStream);
-				byte[] b = ConvertBitmapToByteArray(bitmap);
-
-			}*/
-
+			netServerWinform._currentSoundProvider.GetSamplesSync(out var samples, out var count);
+			//Console.WriteLine("声音：" + count);
 		}
 
-		// 将 Bitmap 转换为像素数组
-		private static byte[] ConvertBitmapToByteArray(Bitmap bitmap)
-		{
-			int width = bitmap.Width;
-			int height = bitmap.Height;
-			byte[] byteArray = new byte[width * height * 4];
-
-			int index = 0;
-			for (int y = 0; y < height; y++)
-			{
-				for (int x = 0; x < width; x++)
-				{
-					Color color = bitmap.GetPixel(x, y);
-					byteArray[index++] = color.A;
-					byteArray[index++] = color.R;
-					byteArray[index++] = color.G;
-					byteArray[index++] = color.B;
-				}
-			}
-
-			return byteArray;
-		}
 
 		private void startButton_Click(object sender, EventArgs e)
 		{
@@ -126,6 +105,34 @@ namespace BizHawk.Client.EmuHawk
 		{
 			udpServer.stop();
 			netServerWinform = null;
+		}
+
+		public void Handel(byte cmd, byte[] data, IPEndPoint clientEP)
+		{
+			switch (cmd) {
+				case Cmd.c_login:
+					login(data, clientEP);
+					break;
+				default:
+					Console.WriteLine("server 收到未知消息：" + cmd);
+					break;
+
+			}
+		}
+
+
+
+		private void login(byte[] data, IPEndPoint clientEP) {
+			udpUser = new UdpUser(clientEP);
+			Console.WriteLine("clientEP:" + clientEP);
+			Console.WriteLine("clientEP:" + clientEP.Address);
+			Console.WriteLine("clientEP:" + clientEP.Port);
+			udpServer.sendData(Cmd.s_login_ok, new byte[]{1 }, udpUser);
+		}
+
+		public void SendError(Exception e, IPEndPoint clientEP)
+		{
+			Console.WriteLine(e);
 		}
 	}
 }
