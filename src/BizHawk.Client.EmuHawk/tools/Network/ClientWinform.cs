@@ -74,7 +74,7 @@ namespace BizHawk.Client.EmuHawk
 		}
 		private void videoSound(byte[] data, IPEndPoint clientEP)
 		{
-			int videoLenght = BitConverter.ToInt32(byteArray, 1);
+			int videoLenght = BitConverter.ToInt32(data, 1);
 			int soundLenght = data.Length-1-4-videoLenght;
 			byte[] video=new byte[videoLenght];
 			short[] sound=new short[soundLenght/2];
@@ -82,6 +82,7 @@ namespace BizHawk.Client.EmuHawk
 			Buffer.BlockCopy(data, 1+4+videoLenght, sound, 0, soundLenght);
 			//复制视频
 			Buffer.BlockCopy(data, 1+4, video, 0, videoLenght);
+			Console.WriteLine("客户端获取到音频：" + sound.Length);
 			netSoundProvider.SetSamples(sound);
 			
 		}

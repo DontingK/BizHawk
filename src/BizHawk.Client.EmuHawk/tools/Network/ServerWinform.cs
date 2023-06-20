@@ -73,7 +73,7 @@ namespace BizHawk.Client.EmuHawk
 			}
 
 			//Console.WriteLine("声音：" + count);
-			if (udpServer.isStart())
+			if (netServerWinform.udpUser!=null)
 			{
 				byte[] video = netServerWinform.videoPngTask();
 				netServerWinform._currentSoundProvider.GetSamplesSync(out short[] samples, out int count);
@@ -86,8 +86,9 @@ namespace BizHawk.Client.EmuHawk
 				data[3]=videoLenghtByte[2];
 				data[4]=videoLenghtByte[3];
 				video.CopyTo(data,5);
-				Array.Copy(samples, 0,data,1+4+video.Length ,count*2);
-				udpServer.sendData(data,udpUser.clientEP);
+				//Array.Copy(samples, 0,data,1+4+video.Length ,count*2);
+				Buffer.BlockCopy(samples, 0, data, 1 + 4 + video.Length, count*2);
+				netServerWinform.udpServer.sendData(data, netServerWinform.udpUser.clientEP);
 			}
 		}
 

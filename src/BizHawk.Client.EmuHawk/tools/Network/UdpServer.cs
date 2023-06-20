@@ -68,17 +68,17 @@ namespace BizHawk.Client.EmuHawk.tools.Network
 
 		public void sendData(byte cmd, byte[] data, IPEndPoint clientEP)
 		{
-			byte[] cmds = new byte[] { cmd};
+			byte[] cmds = new byte[] { cmd };
 			byte[] rData = cmds.Concat(data).ToArray();
 			udpServer.Send(rData, rData.Length, clientEP);
 		}
 		public void sendData(byte[] data, IPEndPoint clientEP)
 		{
-			udpServer.Send(rData, rData.Length, clientEP);
+			udpServer.Send(data, data.Length, clientEP);
 		}
 		public void sendData(byte cmd, byte[] data, UdpUser udpUser)
 		{
-			byte[] cmds = new byte[] { cmd};
+			byte[] cmds = new byte[] { cmd };
 			byte[] rData = cmds.Concat(data).ToArray();
 			try
 			{
@@ -87,7 +87,7 @@ namespace BizHawk.Client.EmuHawk.tools.Network
 			catch (Exception e)
 			{
 				//user 退出
-				udpHandel.SendError(e,udpUser.clientEP);
+				udpHandel.SendError(e, udpUser.clientEP);
 			}
 		}
 
@@ -103,10 +103,11 @@ namespace BizHawk.Client.EmuHawk.tools.Network
 	}
 
 
-	public interface UdpHandel {
+	public interface UdpHandel
+	{
 
 		void Handel(byte cmd, byte[] data, IPEndPoint clientEP);
-		void SendError(Exception e,IPEndPoint clientEP);
+		void SendError(Exception e, IPEndPoint clientEP);
 	}
 
 	internal class UdpUser

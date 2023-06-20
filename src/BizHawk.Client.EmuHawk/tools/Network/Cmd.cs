@@ -15,7 +15,7 @@ namespace BizHawk.Client.EmuHawk.tools.Network
 
 
 
-		public const byte cs_heart=-1;
+		public const byte cs_heart=50;
 
 
 		public  const byte s_login_ok = 101;

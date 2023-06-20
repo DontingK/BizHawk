@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BizHawk.Emulation.Common;
 
 namespace BizHawk.Client.EmuHawk.tools.Network
 {
-	public class NetVideoProvider : IVideoProvider
+	//public class NetVideoProvider : IVideoProvider
+	public class NetVideoProvider 
 	{
 
 
@@ -22,7 +24,7 @@ namespace BizHawk.Client.EmuHawk.tools.Network
 
 		public SyncSoundMode SyncMode => SyncSoundMode.Async;
 
-		private short[] samples = new short[];
+		private short[] samples = Array.Empty<short>();
 
 		public void SetSamples(short[] samples)
 		{
@@ -30,7 +32,7 @@ namespace BizHawk.Client.EmuHawk.tools.Network
 		}
 		public void SetSyncMode(SyncSoundMode mode)
 		{
-			SyncMode = ModuleHandle;
+			//SyncMode = mode;
 		}
 
 		public void GetSamplesSync(out short[] samples, out int nsamp)
@@ -41,7 +43,7 @@ namespace BizHawk.Client.EmuHawk.tools.Network
 
 		public void GetSamplesAsync(short[] samples)
 		{
-			samples = sound;
+			samples = this.samples;
 		}
 		public void DiscardSamples()
 		{
