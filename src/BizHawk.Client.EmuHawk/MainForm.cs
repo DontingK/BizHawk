@@ -71,22 +71,23 @@ namespace BizHawk.Client.EmuHawk
 				var submenu = new ToolStripMenuItem { Text = groupLabel };
 				void ClickHandler(object clickSender, EventArgs clickArgs)
 				{
-					var coreName = ((ToolStripMenuItem) clickSender).Text;
+					var coreName = ((ToolStripMenuItem)clickSender).Text;
 					foreach (var system in appliesTo)
 					{
 						if (Emulator.SystemId == system && Emulator.Attributes().CoreName != coreName) FlagNeedsReboot();
 						Config.PreferredCores[system] = coreName;
 					}
 				}
-				submenu.DropDownItems.AddRange(coreNames.Select(coreName => {
+				submenu.DropDownItems.AddRange(coreNames.Select(coreName =>
+				{
 					var entry = new ToolStripMenuItem { Text = coreName };
 					entry.Click += ClickHandler;
-					return (ToolStripItem) entry;
+					return (ToolStripItem)entry;
 				}).ToArray());
 				submenu.DropDownOpened += (openedSender, _1) =>
 				{
 					_ = Config.PreferredCores.TryGetValue(groupLabel, out var preferred);
-					foreach (ToolStripMenuItem entry in ((ToolStripMenuItem) openedSender).DropDownItems) entry.Checked = entry.Text == preferred;
+					foreach (ToolStripMenuItem entry in ((ToolStripMenuItem)openedSender).DropDownItems) entry.Checked = entry.Text == preferred;
 				};
 				CoresSubMenu.DropDownItems.Add(submenu);
 			}
@@ -118,7 +119,7 @@ namespace BizHawk.Client.EmuHawk
 			ToolStripMenuItemEx otherCoreSettingsSubmenu = new() { Text = "Other" };
 			foreach (var submenu in CreateCoreSettingsSubmenus(includeDupes: true).OrderBy(submenu => submenu.Text))
 			{
-				var parentMenu = (VSystemCategory) submenu.Tag switch
+				var parentMenu = (VSystemCategory)submenu.Tag switch
 				{
 					VSystemCategory.Consoles => consolesCoreSettingsSubmenu,
 					VSystemCategory.Handhelds => handheldsCoreSettingsSubmenu,
@@ -191,7 +192,7 @@ namespace BizHawk.Client.EmuHawk
 			if (requestedExtToolDll != null)
 			{
 				var found = ExtToolManager.ToolStripItems.Where(static item => item.Enabled)
-					.Select(static item => (ExternalToolManager.MenuItemInfo) item.Tag)
+					.Select(static item => (ExternalToolManager.MenuItemInfo)item.Tag)
 					.FirstOrNull(info => info.AsmFilename == requestedExtToolDll
 						|| Path.GetFileName(info.AsmFilename) == requestedExtToolDll
 						|| Path.GetFileNameWithoutExtension(info.AsmFilename) == requestedExtToolDll);
@@ -461,7 +462,7 @@ namespace BizHawk.Client.EmuHawk
 
 			// set up networking before ApiManager (in ToolManager)
 			byte[] NetworkingTakeScreenshot()
-				=> (byte[]) new ImageConverter().ConvertTo(MakeScreenshotImage().ToSysdrawingBitmap(), typeof(byte[]));
+				=> (byte[])new ImageConverter().ConvertTo(MakeScreenshotImage().ToSysdrawingBitmap(), typeof(byte[]));
 			NetworkingHelpers = (
 				_argParser.HTTPAddresses is var (httpGetURL, httpPostURL)
 					? new HttpCommunication(NetworkingTakeScreenshot, httpGetURL, httpPostURL)
@@ -690,17 +691,17 @@ namespace BizHawk.Client.EmuHawk
 				}
 			}
 
-			if (_argParser.UserdataUnparsedPairs is {} pairs) foreach (var (k, v) in pairs)
-			{
-				MovieSession.UserBag[k] = v switch
+			if (_argParser.UserdataUnparsedPairs is { } pairs) foreach (var (k, v) in pairs)
 				{
-					"true" => true,
-					"false" => false,
-					_ when int.TryParse(v, out var i) => i,
-					_ when double.TryParse(v, out var d) => d,
-					_ => v
-				};
-			}
+					MovieSession.UserBag[k] = v switch
+					{
+						"true" => true,
+						"false" => false,
+						_ when int.TryParse(v, out var i) => i,
+						_ when double.TryParse(v, out var d) => d,
+						_ => v
+					};
+				}
 
 			//start Lua Console if requested in the command line arguments
 			if (_argParser.luaConsole)
@@ -745,7 +746,7 @@ namespace BizHawk.Client.EmuHawk
 				var (winVersion, win10PlusVersion) = OSTailoredCode.HostWindowsVersion.Value;
 				var message = winVersion switch
 				{
-//					OSTailoredCode.WindowsVersion._11 when win10PlusVersion! < new Version(10, 0, 22621) => $"Quick reminder: Your copy of Windows 11 (build {win10PlusVersion.Build}) is no longer supported by Microsoft.\nEmuHawk will probably continue working, but please update to at least 21H2 for increased security.",
+					//					OSTailoredCode.WindowsVersion._11 when win10PlusVersion! < new Version(10, 0, 22621) => $"Quick reminder: Your copy of Windows 11 (build {win10PlusVersion.Build}) is no longer supported by Microsoft.\nEmuHawk will probably continue working, but please update to at least 21H2 for increased security.",
 					OSTailoredCode.WindowsVersion._11 => null,
 					OSTailoredCode.WindowsVersion._10 when win10PlusVersion! < new Version(10, 0, 19044) => $"Quick reminder: Your copy of Windows 10 (build {win10PlusVersion.Build}) is no longer supported by Microsoft.\nEmuHawk will probably continue working, but please update to at least 21H2 for increased security.",
 					OSTailoredCode.WindowsVersion._10 => null,
@@ -756,7 +757,7 @@ namespace BizHawk.Client.EmuHawk
 #if DEBUG
 				Console.WriteLine(message);
 #else
-				Load += (_, _) => Config.SkipOutdatedOsCheck = this.ShowMessageBox2($"{message}\n\nSkip this reminder from now on?");
+					Load += (_, _) => Config.SkipOutdatedOsCheck = this.ShowMessageBox2($"{message}\n\nSkip this reminder from now on?");
 #endif
 				}
 			}
@@ -1085,8 +1086,22 @@ namespace BizHawk.Client.EmuHawk
 			base.OnDeactivate(e);
 		}
 
-		public void SetCurrentVideoProvider(IVideoProvider videoProvider) {
+		public void SetCurrentVideoProvider(IVideoProvider videoProvider)
+		{
 			_currentVideoProvider = videoProvider;
+		}
+		public void SetCurrentSoundProvider(ISoundProvider soundProvider)
+		{
+			_currentSoundProvider = soundProvider;
+		}
+
+		public IVideoProvider GetCurrentVideoProvider()
+		{
+			return _currentVideoProvider;
+		}
+		public ISoundProvider GetCurrentSoundProvider()
+		{
+			return _currentSoundProvider;
 		}
 
 		private void ProcessInput(
@@ -1211,13 +1226,13 @@ namespace BizHawk.Client.EmuHawk
 
 			//if we found mouse coordinates (and why wouldn't we?) then translate them now
 			//NOTE: these must go together, because in the case of screen rotation, X and Y are transformed together
-			if(mouseX != null && mouseY != null)
+			if (mouseX != null && mouseY != null)
 			{
-				var p = DisplayManager.UntransformPoint(new Point((int) mouseX.Value.Value, (int) mouseY.Value.Value));
+				var p = DisplayManager.UntransformPoint(new Point((int)mouseX.Value.Value, (int)mouseY.Value.Value));
 				float x = p.X / (float)_currentVideoProvider.BufferWidth;
 				float y = p.Y / (float)_currentVideoProvider.BufferHeight;
-				finalHostController.AcceptNewAxis("WMouse X", (int) ((x * 20000) - 10000));
-				finalHostController.AcceptNewAxis("WMouse Y", (int) ((y * 20000) - 10000));
+				finalHostController.AcceptNewAxis("WMouse X", (int)((x * 20000) - 10000));
+				finalHostController.AcceptNewAxis("WMouse Y", (int)((y * 20000) - 10000));
 			}
 
 		}
@@ -1350,9 +1365,9 @@ namespace BizHawk.Client.EmuHawk
 					}
 				}
 
-//				Util.DebugWriteLine($"For emulator framebuffer {new Size(_currentVideoProvider.BufferWidth, _currentVideoProvider.BufferHeight)}:");
-//				Util.DebugWriteLine($"  For virtual size {new Size(_currentVideoProvider.VirtualWidth, _currentVideoProvider.VirtualHeight)}:");
-//				Util.DebugWriteLine($"  Selecting display size {lastComputedSize}");
+				//				Util.DebugWriteLine($"For emulator framebuffer {new Size(_currentVideoProvider.BufferWidth, _currentVideoProvider.BufferHeight)}:");
+				//				Util.DebugWriteLine($"  For virtual size {new Size(_currentVideoProvider.VirtualWidth, _currentVideoProvider.VirtualHeight)}:");
+				//				Util.DebugWriteLine($"  Selecting display size {lastComputedSize}");
 
 				// Change size
 				Size = new Size(lastComputedSize.Width + borderWidth, lastComputedSize.Height + borderHeight);
@@ -1560,72 +1575,72 @@ namespace BizHawk.Client.EmuHawk
 			switch (Emulator)
 			{
 				case BsnesCore or SubBsnesCore:
-				{
-					var settingsProvider = Emulator.ServiceProvider.GetService<ISettable<BsnesCore.SnesSettings, BsnesCore.SnesSyncSettings>>();
-					var s = settingsProvider.GetSettings();
-					switch (layer)
 					{
-						case 1:
-							result = s.ShowBG1_0 = s.ShowBG1_1 ^= true;
-							break;
-						case 2:
-							result = s.ShowBG2_0 = s.ShowBG2_1 ^= true;
-							break;
-						case 3:
-							result = s.ShowBG3_0 = s.ShowBG3_1 ^= true;
-							break;
-						case 4:
-							result = s.ShowBG4_0 = s.ShowBG4_1 ^= true;
-							break;
-					}
+						var settingsProvider = Emulator.ServiceProvider.GetService<ISettable<BsnesCore.SnesSettings, BsnesCore.SnesSyncSettings>>();
+						var s = settingsProvider.GetSettings();
+						switch (layer)
+						{
+							case 1:
+								result = s.ShowBG1_0 = s.ShowBG1_1 ^= true;
+								break;
+							case 2:
+								result = s.ShowBG2_0 = s.ShowBG2_1 ^= true;
+								break;
+							case 3:
+								result = s.ShowBG3_0 = s.ShowBG3_1 ^= true;
+								break;
+							case 4:
+								result = s.ShowBG4_0 = s.ShowBG4_1 ^= true;
+								break;
+						}
 
-					settingsProvider.PutSettings(s);
-					break;
-				}
+						settingsProvider.PutSettings(s);
+						break;
+					}
 				case LibsnesCore libsnes:
-				{
-					var s = libsnes.GetSettings();
-					switch (layer)
 					{
-						case 1:
-							result = s.ShowBG1_0 = s.ShowBG1_1 ^= true;
-							break;
-						case 2:
-							result = s.ShowBG2_0 = s.ShowBG2_1 ^= true;
-							break;
-						case 3:
-							result = s.ShowBG3_0 = s.ShowBG3_1 ^= true;
-							break;
-						case 4:
-							result = s.ShowBG4_0 = s.ShowBG4_1 ^= true;
-							break;
-					}
+						var s = libsnes.GetSettings();
+						switch (layer)
+						{
+							case 1:
+								result = s.ShowBG1_0 = s.ShowBG1_1 ^= true;
+								break;
+							case 2:
+								result = s.ShowBG2_0 = s.ShowBG2_1 ^= true;
+								break;
+							case 3:
+								result = s.ShowBG3_0 = s.ShowBG3_1 ^= true;
+								break;
+							case 4:
+								result = s.ShowBG4_0 = s.ShowBG4_1 ^= true;
+								break;
+						}
 
-					libsnes.PutSettings(s);
-					break;
-				}
+						libsnes.PutSettings(s);
+						break;
+					}
 				case Snes9x snes9X:
-				{
-					var s = snes9X.GetSettings();
-					switch (layer)
 					{
-						case 1:
-							result = s.ShowBg0 ^= true;
-							break;
-						case 2:
-							result = s.ShowBg1 ^= true;
-							break;
-						case 3:
-							result = s.ShowBg2 ^= true;
-							break;
-						case 4:
-							result = s.ShowBg3 ^= true;
-							break;
-					}
+						var s = snes9X.GetSettings();
+						switch (layer)
+						{
+							case 1:
+								result = s.ShowBg0 ^= true;
+								break;
+							case 2:
+								result = s.ShowBg1 ^= true;
+								break;
+							case 3:
+								result = s.ShowBg2 ^= true;
+								break;
+							case 4:
+								result = s.ShowBg3 ^= true;
+								break;
+						}
 
-					snes9X.PutSettings(s);
-					break;
-				}
+						snes9X.PutSettings(s);
+						break;
+					}
 			}
 
 			AddOnScreenMessage($"BG {layer} Layer {(result ? "On" : "Off")}");
@@ -1779,7 +1794,7 @@ namespace BizHawk.Client.EmuHawk
 				if (_inResizeLoop)
 				{
 					var size = _presentationPanel.NativeSize;
-					sb.Append($"({size.Width}x{size.Height})={(float) size.Width / size.Height} - ");
+					sb.Append($"({size.Width}x{size.Height})={(float)size.Width / size.Height} - ");
 				}
 
 				if (Config.DispSpeedupFeatures == 0)
@@ -1987,7 +2002,7 @@ namespace BizHawk.Client.EmuHawk
 				}
 				else
 				{
-					path =  Config.PathEntries.SaveRamAbsolutePath(Game, MovieSession.Movie);
+					path = Config.PathEntries.SaveRamAbsolutePath(Game, MovieSession.Movie);
 				}
 
 				var file = new FileInfo(path);
@@ -2403,7 +2418,8 @@ namespace BizHawk.Client.EmuHawk
 			AddOnScreenMessage(message);
 		}
 
-		/*internal*/public void Render()
+		/*internal*/
+		public void Render()
 		{
 			if (Config.DispSpeedupFeatures == 0)
 			{
@@ -2656,7 +2672,7 @@ namespace BizHawk.Client.EmuHawk
 
 		private Color SlotBackColor(int slot)
 		{
-			return  Config.SaveSlot == slot
+			return Config.SaveSlot == slot
 				? SystemColors.Highlight
 				: SystemColors.Control;
 		}
@@ -3023,7 +3039,8 @@ namespace BizHawk.Client.EmuHawk
 			AddOnScreenMessage($"Config file loaded: {iniPath}");
 		}
 
-		/*internal*/public void StepRunLoop_Throttle()
+		/*internal*/
+		public void StepRunLoop_Throttle()
 		{
 			SyncThrottle();
 			_throttle.signal_frameAdvance = _runloopFrameAdvance;
@@ -3305,7 +3322,7 @@ namespace BizHawk.Client.EmuHawk
 			{
 				_lastFps = (_lastFps + (_framesSinceLastFpsUpdate * _fpsSmoothing)) / (1.0 + (elapsedSeconds * _fpsSmoothing));
 			}
-			_lastFpsRounded = (int) Math.Round(_lastFps);
+			_lastFpsRounded = (int)Math.Round(_lastFps);
 
 			_framesSinceLastFpsUpdate = 0;
 			_timestampLastFpsUpdate = currentTimestamp;
@@ -3598,7 +3615,7 @@ namespace BizHawk.Client.EmuHawk
 							}
 
 							output = new BmpVideoProvider(bmpOut, _currentVideoProvider.VsyncNumerator, _currentVideoProvider.VsyncDenominator);
-							disposableOutput = (IDisposable) output;
+							disposableOutput = (IDisposable)output;
 						}
 						finally
 						{
@@ -3611,12 +3628,12 @@ namespace BizHawk.Client.EmuHawk
 						if (Config.AviCaptureOsd)
 						{
 							output = new BitmapBufferVideoProvider(CaptureOSD());
-							disposableOutput = (IDisposable) output;
+							disposableOutput = (IDisposable)output;
 						}
 						else if (Config.AviCaptureLua)
 						{
 							output = new BitmapBufferVideoProvider(CaptureLua());
-							disposableOutput = (IDisposable) output;
+							disposableOutput = (IDisposable)output;
 						}
 						else
 						{
@@ -3630,11 +3647,11 @@ namespace BizHawk.Client.EmuHawk
 					int nsamp;
 					if (Config.VideoWriterAudioSyncEffective)
 					{
-						((VideoStretcher) _currAviWriter).DumpAV(output, _currentSoundProvider, out samp, out nsamp);
+						((VideoStretcher)_currAviWriter).DumpAV(output, _currentSoundProvider, out samp, out nsamp);
 					}
 					else
 					{
-						((AudioStretcher) _currAviWriter).DumpAV(output, _aviSoundInputAsync, out samp, out nsamp);
+						((AudioStretcher)_currAviWriter).DumpAV(output, _aviSoundInputAsync, out samp, out nsamp);
 					}
 
 					disposableOutput?.Dispose();

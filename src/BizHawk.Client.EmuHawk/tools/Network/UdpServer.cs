@@ -72,6 +72,10 @@ namespace BizHawk.Client.EmuHawk.tools.Network
 			byte[] rData = cmds.Concat(data).ToArray();
 			udpServer.Send(rData, rData.Length, clientEP);
 		}
+		public void sendData(byte[] data, IPEndPoint clientEP)
+		{
+			udpServer.Send(rData, rData.Length, clientEP);
+		}
 		public void sendData(byte cmd, byte[] data, UdpUser udpUser)
 		{
 			byte[] cmds = new byte[] { cmd};

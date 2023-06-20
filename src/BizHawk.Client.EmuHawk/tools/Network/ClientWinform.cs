@@ -18,6 +18,9 @@ namespace BizHawk.Client.EmuHawk
 		private UdpServer udpServer;
 		private UdpUser udpUser;
 
+		private NetSoundProvider netSoundProvider=new NetSoundProvider();
+		private ISoundProvider mainFormOriginSoundProvider;
+
 		private NetClienWinform(MainForm mainForm)
 		{
 			this.mainForm = mainForm;
@@ -26,7 +29,8 @@ namespace BizHawk.Client.EmuHawk
 		}
 
 
-		public static void start(MainForm mainForm) {
+		public static void start(MainForm mainForm)
+		{
 			if (NetServerWinform.netServerWinform != null)
 			{
 				string message = "Net Server/Clinet  Cannot be opened at the same time";
@@ -36,7 +40,8 @@ namespace BizHawk.Client.EmuHawk
 				MessageBox.Show(message, caption, buttons, icon);
 				return;
 			}
-			else {
+			else
+			{
 				netCliendWinform = new NetClienWinform(mainForm);
 				netCliendWinform.Show();
 			}
@@ -49,6 +54,12 @@ namespace BizHawk.Client.EmuHawk
 				case Cmd.s_login_ok:
 					loginOk(data, clientEP);
 					break;
+				case Cmd.s_video_sound:
+					videoSound(data, clientEP);
+					break;
+				default:
+					Console.WriteLine("未知cmd" + cmd);
+					break;
 			}
 
 		}
@@ -57,8 +68,23 @@ namespace BizHawk.Client.EmuHawk
 		{
 			Console.WriteLine("loginOk");
 			udpUser = new UdpUser(clientEP);
+			mainFormOriginSoundProvider=mainForm.GetCurrentSoundProvider();
+			//
+			mainForm.SetCurrentSoundProvider(netSoundProvider);
 		}
-
+		private void videoSound(byte[] data, IPEndPoint clientEP)
+		{
+			int videoLenght = BitConverter.ToInt32(byteArray, 1);
+			int soundLenght = data.Length-1-4-videoLenght;
+			byte[] video=new byte[videoLenght];
+			short[] sound=new short[soundLenght/2];
+			//复制sound
+			Buffer.BlockCopy(data, 1+4+videoLenght, sound, 0, soundLenght);
+			//复制视频
+			Buffer.BlockCopy(data, 1+4, video, 0, videoLenght);
+			netSoundProvider.SetSamples(sound);
+			
+		}
 		public void SendError(Exception e, IPEndPoint clientEP)
 		{
 		}
@@ -71,11 +97,12 @@ namespace BizHawk.Client.EmuHawk
 				linkButton.Text = "start";
 				return;
 			}
-			else {
+			else
+			{
 				IPEndPoint clientEP = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 10010);
 				udpServer.start(10012);
 				udpServer.sendData(Cmd.c_login, new byte[] { 1 }, clientEP);
-				linkButton.Text = "stop link"; 
+				linkButton.Text = "stop link";
 			}
 		}
 	}

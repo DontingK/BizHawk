@@ -16,7 +16,7 @@ namespace BizHawk.Client.EmuHawk
 
 		public static NetServerWinform netServerWinform = null;
 		private IVideoProvider _currentVideoProvider;
-		private UdpServer udpServer ;
+		private UdpServer udpServer;
 		private ISoundProvider _currentSoundProvider;
 		private Func<byte[]> videoPngTask;
 
@@ -66,14 +66,29 @@ namespace BizHawk.Client.EmuHawk
 
 		public static void runLoop()
 		{
-		//	if (netServerWinform == null&& !netServerWinform.udpServer.isUserLink())
+			//	if (netServerWinform == null&& !netServerWinform.udpServer.isUserLink())
 			if (netServerWinform == null)
 			{
 				return;
 			}
-			byte[] video = netServerWinform.videoPngTask();
-			netServerWinform._currentSoundProvider.GetSamplesSync(out var samples, out var count);
+
 			//Console.WriteLine("声音：" + count);
+			if (udpServer.isStart())
+			{
+				byte[] video = netServerWinform.videoPngTask();
+				netServerWinform._currentSoundProvider.GetSamplesSync(out short[] samples, out int count);
+				int videoLenght=video.Length;
+				byte[] data=new byte[1+4+video.Length+count*2];
+				data[0]=Cmd.s_video_sound;
+				byte[] videoLenghtByte = BitConverter.GetBytes(videoLenght);
+				data[1]=videoLenghtByte[0];
+				data[2]=videoLenghtByte[1];
+				data[3]=videoLenghtByte[2];
+				data[4]=videoLenghtByte[3];
+				video.CopyTo(data,5);
+				Array.Copy(samples, 0,data,1+4+video.Length ,count*2);
+				udpServer.sendData(data,udpUser.clientEP);
+			}
 		}
 
 
@@ -109,7 +124,8 @@ namespace BizHawk.Client.EmuHawk
 
 		public void Handel(byte cmd, byte[] data, IPEndPoint clientEP)
 		{
-			switch (cmd) {
+			switch (cmd)
+			{
 				case Cmd.c_login:
 					login(data, clientEP);
 					break;
@@ -122,12 +138,13 @@ namespace BizHawk.Client.EmuHawk
 
 
 
-		private void login(byte[] data, IPEndPoint clientEP) {
+		private void login(byte[] data, IPEndPoint clientEP)
+		{
 			udpUser = new UdpUser(clientEP);
 			Console.WriteLine("clientEP:" + clientEP);
 			Console.WriteLine("clientEP:" + clientEP.Address);
 			Console.WriteLine("clientEP:" + clientEP.Port);
-			udpServer.sendData(Cmd.s_login_ok, new byte[]{1 }, udpUser);
+			udpServer.sendData(Cmd.s_login_ok, new byte[] { 1 }, udpUser);
 		}
 
 		public void SendError(Exception e, IPEndPoint clientEP)
